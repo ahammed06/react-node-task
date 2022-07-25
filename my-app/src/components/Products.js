@@ -13,18 +13,15 @@ export default function Products({productSearch,newProduct}) {
 
     useEffect(() => {
         setProductSearchText(productSearch)
-        let plen = 0
         if(newProduct){
             offset=0
             showMore=true
-        }else{
-            plen = productData.length
         }
         if(productSearch===''){
             axios
                 .get(`http://localhost:4000/view/get-product/${limit}/${offset}/${sort}`)
                 .then(({ data }) => {
-                    if (data.data.length < limit || plen+data.data.length>=data.count) {
+                    if (data.data.length < limit) {
                         showMore = false
                     }
                     setProductData(data.data)
@@ -34,7 +31,7 @@ export default function Products({productSearch,newProduct}) {
             axios
                 .post(`http://localhost:4000/view/search-product/${limit}/${offset}/${sort}`, {'productSearch': productSearch})
                 .then(({ data }) => {
-                    if (data.data.length < limit || plen+data.data.length>=data.count) {
+                    if (data.data.length < limit) {
                         showMore = false
                     }
                     setProductData(data.data)
@@ -49,7 +46,7 @@ export default function Products({productSearch,newProduct}) {
             axios
                 .get(`http://localhost:4000/view/get-product/${limit}/${offset}/${sort}`)
                 .then(({ data }) => {
-                    if (data.data.length < limit || productData.length+data.data.length>=data.count) {
+                    if (data.data.length < limit) {
                         showMore = false
                     }
                     setProductData(data.data)
@@ -58,7 +55,7 @@ export default function Products({productSearch,newProduct}) {
             axios
                 .post(`http://localhost:4000/view/search-product/${limit}/${offset}/${sort}`, {'productSearch': productSearch})
                 .then(({ data }) => {
-                    if (data.data.length < limit || productData.length+data.data.length>=data.count) {
+                    if (data.data.length < limit) {
                         showMore = false
                     }
                     setProductData(data.data)
@@ -79,7 +76,7 @@ export default function Products({productSearch,newProduct}) {
                     axios
                         .get(`http://localhost:4000/view/get-product/${limit}/${offset}/${sort}`)
                         .then(({ data }) => {
-                            if (data.data.length < limit || productData.length+data.data.length>=data.count) {
+                            if (data.data.length < limit) {
                                 showMore = false
                             }
                             for (let i = 0; i < data.data.length; i++) {
@@ -92,7 +89,7 @@ export default function Products({productSearch,newProduct}) {
                     axios
                         .post(`http://localhost:4000/view/search-product/${limit}/${offset}/${sort}`, {'productSearch': productSearch})
                         .then(({ data }) => {
-                            if (data.data.length < limit || productData.length+data.data.length>=data.count) {
+                            if (data.data.length < limit) {
                                 showMore = false
                             }
                             for (let i = 0; i < data.data.length; i++) {

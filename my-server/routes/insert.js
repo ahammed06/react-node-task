@@ -1,6 +1,6 @@
 const express = require('express'),
     router = express.Router(),
-    mysql = require('mysql'),
+    mongoose = require('mongoose'),
     fs = require('fs'),
     path = require("path");
 
@@ -58,13 +58,7 @@ let second = date_ob.getSeconds();
 
 let curDate = year + "-" + month + "-" + date + " " + hour + ":" + minute + ":" + second;
 
-let db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'task',
-    insecureAuth: true
-});
+const Product = require('../models/product.model');
 
 // get Insert
 router.get('/', function (req, res) {
@@ -84,15 +78,42 @@ router.post('/add-product', function (req, res) {
     let Tags = req.body.Tags;
     let Price = req.body.Price;
 
+    let BestValue = false
+    let BestCamera = false
+    let BestPerformance = false
+
     let Image = ''
     if (req.files.Image) {                        
         Image = cusfileupload(req.files.Image);
     }
 
-    let sql = `INSERT INTO products SET Name=?, Brand=?, RamRom=?, Tags=?, Price=?, Image=?, DateInserted=?`;
-    db.query(sql, [Name, Brand, RamRom, Tags, Price, Image, curDate], function (error, data) {
-        if (error) throw error;
-        return res.send({ error: false, status: 200, message: 'Product Inserted' });
+    if(Tags.includes("1")){
+        BestValue = true
+    }else if(Tags.includes("2")){
+        BestCamera = true
+    }else if(Tags.includes("3")){
+        BestPerformance = true
+    }
+
+    let product = new Product()
+    product.Name = Name
+    product.Brand = Brand
+    product.RamRom = RamRom
+    product.Tags = Tags
+    product.Price = Price
+    product.Image = Image
+    product.BestValue = BestValue
+    product.BestCamera = BestCamera
+    product.BestPerformance = BestPerformance
+    product.DateInserted = curDate
+    product.save((err, data) => {
+        if(!err){
+            console.log(data);
+            return res.send({ error: false, status: 200, message: 'Product Inserted' });
+        }else{
+            console.log(err);
+            return res.send({ error: true, status: 400, message: 'Product Not Inserted' });
+        }
     })
 });
 

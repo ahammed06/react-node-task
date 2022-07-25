@@ -1,15 +1,11 @@
 const express = require('express'),
-    router = express.Router(),
-    mysql = require('mysql');
+    router = express.Router();
+const database = require('../db.js')
 
-let db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: '',
-    database: 'task',
-    insecureAuth: true,
-    multipleStatements: true
-});
+const Condition = require('../models/condition.model');
+const Source = require('../models/source.model');
+const Product = require('../models/product.model');
+
 
 // get view
 router.get('/', function (req, res) {
@@ -22,19 +18,23 @@ router.get('/', function (req, res) {
 
 // get Sources
 router.get('/get-sources', function (req, res) {
-    let sql = `SELECT * FROM sources;`;
-    db.query(sql, [], function (error, data) {
-        if (error) throw error;
-        return res.send({ error: false, data: data, status: 200, message: 'Source List' });
+    Source.find((err, data) => {
+        if(!err){
+            return res.send({ error: false, data: data, status: 200, message: 'Source List' });
+        }else{
+            return res.send({ error: true, data: [], status: 400, message: 'Source List' });
+        }
     })
 });
 
 // get Conditions
 router.get('/get-conditions', function (req, res) {
-    let sql = `SELECT * FROM conditions;`;
-    db.query(sql, [], function (error, data) {
-        if (error) throw error;
-        return res.send({ error: false, data: data, status: 200, message: 'Conditions List' });
+    Condition.find((err, data) => {
+        if(!err){
+            return res.send({ error: false, data: data, status: 200, message: 'Conditions List' });
+        }else{
+            return res.send({ error: true, data: [], status: 400, message: 'Conditions List' });
+        }
     })
 });
 
@@ -44,17 +44,22 @@ router.get('/get-product/:limit/:offset/:sort', function (req, res) {
     let offset = req.params.offset;
     let sort = req.params.sort;
 
-    let sortOrder = ''
-    if(sort > 0){
-        sortOrder = `WHERE Tags LIKE '%${sort}%'`
+    let qry = {}
+    if(sort==1){
+        qry = { BestValue: { $eq: true } }
+    }else if(sort==2){
+        qry = { BestCamera: { $eq: true } }
+    }else if(sort==3){
+        qry = { BestPerformance: { $eq: true } }
     }
 
-    let sql = `SELECT * FROM products ${sortOrder} ORDER BY ProductID DESC LIMIT ${limit} OFFSET ${offset};`;
-    sql += `SELECT COUNT(*) count FROM products ${sortOrder};`;
-    db.query(sql, [], function (error, data) {
-        if (error) throw error;
-        return res.send({ error: false, data: data[0], count: data[1][0].count, status: 200, message: 'Product List' });
-    })
+    Product.find(qry, (err, data) => {
+        if(!err){
+            return res.send({ error: false, data: data, status: 200, message: 'Product List' });
+        }else{
+            return res.send({ error: true, data: [], status: 400, message: 'Product List Error' });
+        }
+    }).sort({"DateInserted":-1}).skip(offset).limit(limit)
 });
 
 // search Product List
@@ -63,18 +68,26 @@ router.post('/search-product/:limit/:offset/:sort', function (req, res) {
     let offset = req.params.offset;
     let sort = req.params.sort;
     let productSearch = req.body.productSearch;
-
-    let sortOrder = ''
-    if(sort > 0){
-        sortOrder = `AND Tags LIKE '%${sort}%'`
+    let qry = {}
+    
+    if(sort==1){
+        qry["BestValue"] = { $eq: true }
+    }else if(sort==2){
+        qry["BestCamera"] = { $eq: true }
+    }else if(sort==3){
+        qry["BestPerformance"] = { $eq: true }
+    }
+    if(productSearch){
+        qry["$or"] = [{ Name: {$regex: `${productSearch}.*`, $options: 'i'}}, {Brand: {$regex: `${productSearch}.*`, $options: 'i'} }]
     }
 
-    let sql = `SELECT * FROM products WHERE (Name LIKE '%${productSearch}%' OR Brand LIKE '%${productSearch}%') ${sortOrder} ORDER BY ProductID DESC LIMIT ${limit} OFFSET ${offset};`;
-    sql += `SELECT COUNT(*) count FROM products WHERE (Name LIKE '%${productSearch}%' OR Brand LIKE '%${productSearch}%') ${sortOrder};`;
-    db.query(sql, [], function (error, data) {
-        if (error) throw error;
-        return res.send({ error: false, data: data[0], count: data[1][0].count, status: 200, message: 'Product List' });
-    })
+    Product.find(qry, (err, data) => {
+        if(!err){
+            return res.send({ error: false, data: data, status: 200, message: 'Product List' });
+        }else{
+            return res.send({ error: true, data: [], status: 400, message: 'Product List Error' });
+        }
+    }).sort({"DateInserted":-1}).skip(offset).limit(limit)
 });
 
 module.exports = router;

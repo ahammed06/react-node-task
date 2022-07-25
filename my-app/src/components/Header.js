@@ -37,7 +37,7 @@ export default function Header({productSearchFn}) {
                                     </form>
                                 </div>
                                 <div className='col-sm-4'>
-                                    <button type='button' className='add_product_opener' data-bs-toggle="modal" data-bs-target="#add-product-modal" onClick={openModal}>Add Product</button>
+                                    <button type='button' className='add_product_opener' onClick={openModal}>Add Product</button>
                                 </div>
                             </div>
                         </div>

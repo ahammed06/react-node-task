@@ -42,10 +42,10 @@ export function BarChart() {
 
             (data.data).map((item) => {
               initdata.push(item.Price)
-              labels.push(item.Conditionn)
+              labels.push(item.Condition)
               return ({
                 Price: item.Price,
-                Condition: item.Conditionn
+                Condition: item.Condition
               });
             })
 
