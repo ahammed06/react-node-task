@@ -6,6 +6,7 @@ fs = require('fs'),
 path = require("path"),
 fileupload = require('express-fileupload');
 
+const database = require('./db.js')
 
 // routers
 const insertRouter = require('./routes/insert');

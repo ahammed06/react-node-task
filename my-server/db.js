@@ -9,6 +9,4 @@ err => {
     }else{
         console.log('db connection error'+err);
     }
-})
-
-// require('./models/condition.model')
+});

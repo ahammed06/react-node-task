@@ -1,6 +1,5 @@
 const express = require('express'),
     router = express.Router();
-const database = require('../db.js')
 
 const Condition = require('../models/condition.model');
 const Source = require('../models/source.model');
